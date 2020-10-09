@@ -5,13 +5,13 @@ const router = express.Router();
 
 router.get('/projects', (req,res) => {
     projects.get()
-    .then((p)=>{
-        res.status(200).json(p)
+    .then((project)=>{
+        res.status(200).json(project)
     })
     .catch((err)=>{
         console.log(err)
         res.status(500).json({
-          message: "Error retrieving the users",
+          message: "Error retrieving the projects",
          })
     })
 })
@@ -22,13 +22,31 @@ router.get('/projects/:id',validateProjectId(), (req,res)=>{
 })
 //DONE --- GETS single project by ID
 
-router.get('/projects/:id/actions', (req,res)=>{
-
+router.get('/projects/:id/actions', validateProjectId(), (req,res)=>{
+    projects.getProjectActions(req.params.id)
+    .then((actions)=>{
+        res.status(200).json(actions)
+    })
+    .catch((err)=>{
+        console.log(err)
+        res.status(500).json({
+          message: "Error retrieving the actions",
+         })
+    })
 })
 //GETS all actions for a specific project
 
-router.post('/projects', (req,res)=>{
-
+router.post('/projects', validateProject(), (req,res)=>{
+    projects.insert(req.body)
+    .then((project)=>{
+        res.status(201).json(project)
+    })
+    .catch((err)=>{
+        console.log(err)
+        res.status(500).json({
+          message: "Error posting the projects",
+         })
+    })
 })
 //POST creates a new project
 
@@ -61,4 +79,18 @@ function validateProjectId(){
     }
 }
 
+function validateProject(){
+    return (req, res, next) =>{
+        if(!req.body){
+            res.status(400).json({
+                message:"missing project data"
+            })
+        } else if (!req.body.name || !req.body.description) {
+            res.status(400).json({
+                message:"missing field (BOTH name and description required)"
+            })
+        }
+        next()
+    }
+}
 module.exports = router
