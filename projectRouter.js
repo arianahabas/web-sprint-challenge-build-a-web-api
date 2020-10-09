@@ -48,17 +48,37 @@ router.post('/projects', validateProject(), (req,res)=>{
          })
     })
 })
-//POST creates a new project
+//DONE --- POST creates a new project
 
-router.put('/projects/:id', (req,res)=>{
-
+router.put('/projects/:id', validateProject(), validateProjectId(), (req,res)=>{
+    projects.update(req.params.id, req.body)
+    .then((project)=>{
+        res.status(200).json(project)
+    })
+    .catch((err)=>{
+        console.log(err)
+        res.status(500).json({
+          message: "Error updating the project",
+         })
+    })
 })
-//UPDATES specific project by id
+//DONE -- UPDATES specific project by id
 
-router.delete('/projects/:id', (req,res)=>{
-
+router.delete('/projects/:id', validateProjectId(), (req,res)=>{
+    projects.remove(req.params.id)
+    .then((project)=>{
+        res.status(200).json({
+            message:"project destruction was a success! 🔥 "
+        })
+    })
+    .catch((err)=>{
+        console.log(err)
+        res.status(500).json({
+          message: "Error deleting the project",
+         })
+    })
 })
-//DELETES single project by id
+//DONE -- DELETES single project by id
 
 //custom middleware
 function validateProjectId(){
@@ -93,4 +113,5 @@ function validateProject(){
         next()
     }
 }
+
 module.exports = router
